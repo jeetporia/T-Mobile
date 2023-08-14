@@ -35,7 +35,7 @@
             mat-flat-button
             color="primary"
             (click)="addBookToReadingList(b)"
-            [disabled]="b.isAdded"
+            [disabled]="b.isAdded" class="add-button"
             [attr.aria-label]="'Add ' + b.title + ' to Reading List'"
           >
             Want to Read

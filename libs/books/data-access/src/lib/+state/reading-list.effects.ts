@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { catchError, concatMap, exhaustMap, map } from 'rxjs/operators';
+import { catchError, concatMap, exhaustMap, map, tap } from 'rxjs/operators';
 import { ReadingListItem } from '@tmo/shared/models';
 import * as ReadingListActions from './reading-list.actions';
-
+import { Store } from '@ngrx/store';
 @Injectable()
 export class ReadingListEffects implements OnInitEffects {
   loadReadingList$ = createEffect(() =>
@@ -53,10 +53,24 @@ export class ReadingListEffects implements OnInitEffects {
       )
     )
   );
+  markAsFinished$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ReadingListActions.markAsFinished),
+      concatMap(({ item }) => {
+        return this.http.put(`/api/reading-list/${item.bookId}/finished`, {}).pipe(
+          map(() => ReadingListActions.confirmedMarkAsFinished({ item })),
+          catchError(() => of(ReadingListActions.failedMarkAsFinished({ item })))
+        );
+      }),
+      tap(() => {
+        this.store.dispatch(ReadingListActions.init());
+      })
+    )
+  );
 
   ngrxOnInitEffects() {
     return ReadingListActions.init();
   }
 
-  constructor(private actions$: Actions, private http: HttpClient) {}
+  constructor(private actions$: Actions, private http: HttpClient,private store: Store ) {}
 }

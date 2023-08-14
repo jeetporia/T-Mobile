@@ -5,12 +5,12 @@ import { SharedTestingModule } from '@tmo/shared/testing';
 import { BooksFeatureModule } from '../books-feature.module';
 import { BookSearchComponent } from './book-search.component';
 import { StoreModule, Store } from '@ngrx/store';
-import { searchBooks } from '../../../../data-access/src/lib/+state/books.actions';
 
 describe('ProductsListComponent', () => {
   let component: BookSearchComponent;
   let fixture: ComponentFixture<BookSearchComponent>;
   let store: Store;
+  const dispatchSpy = jest.spyOn(Store.prototype, 'dispatch');
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -20,6 +20,7 @@ describe('ProductsListComponent', () => {
         SharedTestingModule,
         StoreModule.forRoot({}),
       ],
+      providers: [Store],
     }).compileComponents();
   }));
 
@@ -35,14 +36,16 @@ describe('ProductsListComponent', () => {
   });
 
   it('should dispatch searchBooks action when the search term is provided', () => {
-    spyOn(store, 'dispatch');
     component.ngOnInit();
     component.searchForm.patchValue({
       term: 'sample search term',
     });
     component.searchBookInput();
-    expect(store.dispatch).toHaveBeenCalledWith(
-      searchBooks({ term: 'sample search term' })
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: '[Books Search Bar] Search',
+        term: 'sample search term',
+      })
     );
   }); 
 });

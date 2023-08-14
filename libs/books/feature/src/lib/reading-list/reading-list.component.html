@@ -10,6 +10,17 @@
       </div>
     </div>
     <div>
+      <div *ngIf="b.finished; else notFinished" class="finishedStatus">
+        <mat-icon class="finishedIcon">check_circle</mat-icon>
+        <div class="finishedOnTxt">Finished on {{ b.finishedDate | date: 'dd MMM yy' }}</div>
+      </div>
+      <ng-template #notFinished>
+        <button mat-button color="primary" (click)="markAsFinished(b)">
+          Mark as Finished
+        </button>
+      </ng-template>
+    </div>
+    <div>
       <button
         mat-icon-button
         color="warn"

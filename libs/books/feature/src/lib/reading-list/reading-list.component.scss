@@ -32,6 +32,18 @@
   min-width: 0;
   margin-right: $spacing-xxs;
 }
+.finishedStatus{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100px;
+  .finishedIcon {
+    color: #43a047;
+  }
+  .finishedOnTxt {
+    margin-left: $spacing-xxs;
+  }
+}
 
 .reading-list-item--details--title,
 .reading-list-item--details--author {

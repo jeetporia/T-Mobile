@@ -39,9 +39,6 @@ export class BookSearchComponent implements OnInit,OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.booksSubscription.unsubscribe();
-  }
 
   formatDate(date: void | string) {
     return date
@@ -64,5 +61,8 @@ export class BookSearchComponent implements OnInit,OnDestroy {
     } else {
       this.store.dispatch(clearSearch());
     }
+  }
+  ngOnDestroy(): void {
+    this.booksSubscription.unsubscribe();
   }
 }

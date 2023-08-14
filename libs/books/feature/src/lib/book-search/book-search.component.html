@@ -31,15 +31,10 @@
           </div>
           <p [innerHTML]="b.description"></p>
           <div>
-            <button
-            mat-flat-button
-            color="primary"
-            (click)="addBookToReadingList(b)"
-            [disabled]="b.isAdded"
-            [attr.aria-label]="'Add ' + b.title + ' to Reading List'"
-          >
-            Want to Read
-          </button>
+            <button mat-flat-button color="primary" (click)="addBookToReadingList(b)"
+              [disabled]="b.isAdded && (b.finished === null)">
+              {{ b.finished ? 'Finished' : 'Want to Read' }}
+            </button>
           </div>
         </div>
       </div>

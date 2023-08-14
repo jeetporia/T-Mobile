@@ -52,7 +52,17 @@ const readingListReducer = createReducer(
   ),
   on(ReadingListActions.removeFromReadingList, (state, action) =>
     readingListAdapter.removeOne(action.item.bookId, state)
-  )
+  ),
+  on(ReadingListActions.confirmedMarkAsFinished, (state, action) => {
+    const updatedItem = { ...state.entities[action.item.bookId], finished: true};
+    return readingListAdapter.updateOne({ id: action.item.bookId, changes: updatedItem }, state);
+  }),
+  on(ReadingListActions.failedMarkAsFinished, (state, action) => {
+    return {
+      ...state,
+      error: 'Failed Mark As Finished'
+    };
+  })
 );
 
 export function reducer(state: State | undefined, action: Action) {

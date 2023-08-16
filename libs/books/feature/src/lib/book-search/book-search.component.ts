@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import {
   addToReadingList,
@@ -9,20 +9,26 @@ import {
 } from '@tmo/books/data-access';
 import { FormBuilder } from '@angular/forms';
 import { Book } from '@tmo/shared/models';
-import { Subscription } from 'rxjs';
+import { Subscription, fromEvent } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'tmo-book-search',
   templateUrl: './book-search.component.html',
   styleUrls: ['./book-search.component.scss']
 })
-export class BookSearchComponent implements OnInit,OnDestroy {
+export class BookSearchComponent implements OnInit,OnDestroy, AfterViewInit {
   books: ReadingListBook[];
   private booksSubscription: Subscription;
+  
+  @ViewChild('searchInput')
+  searchInput:ElementRef;
 
   searchForm = this.fb.group({
     term: ''
   });
+
+  searchSubscription: Subscription;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -37,10 +43,6 @@ export class BookSearchComponent implements OnInit,OnDestroy {
     this.booksSubscription = this.store.select(getAllBooks).subscribe(books => {
       this.books = books;
     });
-  }
-
-  ngOnDestroy(): void {
-    this.booksSubscription.unsubscribe();
   }
 
   formatDate(date: void | string) {
@@ -63,6 +65,32 @@ export class BookSearchComponent implements OnInit,OnDestroy {
       this.store.dispatch(searchBooks({ term: this.searchTerm }));
     } else {
       this.store.dispatch(clearSearch());
+    }
+  }
+  searchBookInput() {
+    if (this.searchForm.value.term) {
+      this.store.dispatch(searchBooks({ term: this.searchTerm }));
+    } else {
+      this.store.dispatch(clearSearch());
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.searchInput) {
+      fromEvent(this.searchInput.nativeElement, 'keyup')
+        .pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe(
+          () => this.searchBookInput()
+        )
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.booksSubscription.unsubscribe();
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
     }
   }
 }
